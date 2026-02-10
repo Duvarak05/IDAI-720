@@ -137,8 +137,20 @@ class VGG_Pre:
         # k: number of data points selected to query for oracles
         # Return the indices of top k most uncertain predictions
         # Write your code below:
+        
+        # Get predictions (probabilities)
+        preds = self.decision_function(X)
+        
+        # Calculate uncertainty: closer to 0.5 means more uncertain
+        # uncertainty = 1 - |p - 0.5| * 2 (normalized 0-1) or just distance |p - 0.5| (minimize this)
+        distance = np.abs(preds.flatten() - 0.5)
+        
+        # Get indices of the k smallest distances (most uncertain)
+        # argsort returns indices that would sort the array
+        sorted_indices = np.argsort(distance)
+        inds = sorted_indices[:k]
 
-        return inds[:k]
+        return inds
 
     # Below is for A5
     def output_grad(self, inputs):
