@@ -2,16 +2,36 @@ from collections import Counter
 import numpy as np
 
 def Reweighing(X, Y, A):
-    # X: independent variables (2-d pd.DataFrame)
-    # Y: the dependent variable (1-d np.array, binary y in {0,1})
-    # A: a list/array of the names of the sensitive attributes with binary values
-    # Return: sample_weight, an array of float weight for every data point
-    #         sample_weight(a,y) = P(y)*P(a)/P(a,y)
-    # Write your code below:
+    # X: dataframe (not used here)
+    # Y: binary labels (0/1)
+    # A: sensitive attribute (binary)
 
+    Y = np.array(Y)
+    A = np.array(A)
 
-    # Rescale the sum of sample weights to len(y) before returning it
+    n = len(Y)
+
+    # Probabilities
+    P_y = Counter(Y)
+    P_a = Counter(A)
+    P_ay = Counter(zip(A, Y))
+
+    # convert counts -> probabilities
+    for k in P_y:
+        P_y[k] /= n
+    for k in P_a:
+        P_a[k] /= n
+    for k in P_ay:
+        P_ay[k] /= n
+
+    # compute weights
+    sample_weight = np.zeros(n)
+
+    for i in range(n):
+        sample_weight[i] = (P_y[Y[i]] * P_a[A[i]]) / P_ay[(A[i], Y[i])]
+
+    # Rescale weights to sum = len(Y)
     sample_weight = sample_weight * len(Y) / sum(sample_weight)
-    return sample_weight
 
+    return sample_weight
 
