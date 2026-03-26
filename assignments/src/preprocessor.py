@@ -4,13 +4,12 @@ import numpy as np
 def Reweighing(X, Y, A):
     Y = np.array(Y)
     A = np.array(A)
-
     n = len(Y)
 
-    # counts
-    P_y = Counter(Y)
-    P_a = Counter(A)
-    P_ay = Counter(zip(A, Y))
+    # Use tolist() so Counter gets plain Python ints, not numpy scalars
+    P_y  = Counter(Y.tolist())
+    P_a  = Counter(A.tolist())
+    P_ay = Counter(zip(A.tolist(), Y.tolist()))
 
     # convert to probabilities
     for k in P_y:
@@ -23,9 +22,10 @@ def Reweighing(X, Y, A):
     # compute weights
     sample_weight = np.zeros(n)
     for i in range(n):
-        sample_weight[i] = (P_y[Y[i]] * P_a[A[i]]) / P_ay[(A[i], Y[i])]
+        a_i = A[i].item()   # numpy scalar → Python int
+        y_i = Y[i].item()
+        sample_weight[i] = (P_y[y_i] * P_a[a_i]) / P_ay[(a_i, y_i)]
 
-    # Rescale the sum of sample weights to len(y)
+    # Rescale the sum of sample weights to len(Y)
     sample_weight = sample_weight * len(Y) / sum(sample_weight)
-
     return sample_weight
