@@ -4,11 +4,11 @@ import numpy as np
 def Reweighing(X, Y, A):
     n = len(Y)
 
-    # Convert A to a flat list of column names regardless of input type
-    a_cols = A if not isinstance(A, str) else [A]
+    # X is a dict, A is a list of key names
+    a_cols = [A] if isinstance(A, str) else list(A)
 
-    # Build sensitive attribute tuples directly from numpy to avoid pandas indexing issues
-    a_vals = [tuple(row) for row in X.iloc[:, [X.columns.get_loc(c) for c in a_cols]].values]
+    # Build sensitive attribute tuples from dict values
+    a_vals = [tuple(X[c][i] for c in a_cols) for i in range(n)]
 
     y_counts  = Counter(Y)
     a_counts  = Counter(a_vals)
